@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - net
+
+  openldap:
+    image: docker.io/bitnami/openldap:2.6
+    ports:
+      - '1389:1389'
+      - '1636:1636'
+    environment:
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=adminpassword
+      - LDAP_USERS=michael
+      - LDAP_PASSWORDS=michael
+      - LDAP_URI=ldap://openldap:1389 
+      - LDAP_BASE=dc=example,dc=org
+      - LDAP_BIND_DN=cn=admin,dc=example,dc=org
+      - LDAP_BIND_PASSWORD=bindpassword
+    volumes:
+      - 'openldap_data:/bitnami/openldap'
+    networks:
+      - net
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - net
+    depends_on:
+      - db
+      - openldap
+
+  proxy:
+    image: httpd:latest
+    ports:
+    - '8080:80'
+    volumes:
+    - ./website:/usr/local/apache2/htdocs
+
+volumes:
+  openldap_data:
+    driver: local
+networks:
+  net:
+    driver: bridge
