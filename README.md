@@ -2,7 +2,7 @@
 
 ## Call
 
-	git clone x MyProject
+	git clone git@github.com:PlatzDa74/django-compose.git MyProject
 
 MyProject will also be the name of your Django project, trough launch.sh
 
