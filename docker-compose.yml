@@ -49,9 +49,11 @@ services:
   proxy:
     image: httpd:latest
     ports:
-    - '8080:80'
+      - '8080:80'
     volumes:
-    - ./website:/usr/local/apache2/htdocs
+      - ./proxy:/usr/local/apache2/htdocs
+    networks:
+      - net
 
 volumes:
   openldap_data:
